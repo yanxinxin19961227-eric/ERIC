@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>POE2 BD攻略库</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101113;
+      --panel: #191b1f;
+      --panel-2: #202329;
+      --line: #343943;
+      --text: #f1eee8;
+      --muted: #a7a196;
+      --gold: #d8a84d;
+      --red: #b54e43;
+      --green: #73b37a;
+      --blue: #77a5c8;
+      --shadow: 0 18px 55px rgba(0, 0, 0, .35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(16, 17, 19, .65), #101113 34rem),
+        url("https://cdn.akamai.steamstatic.com/steam/apps/2694490/library_hero.jpg") center top / cover no-repeat fixed;
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, select { font: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .85rem clamp(1rem, 4vw, 2.5rem);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(16, 17, 19, .82);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 2.25rem;
+      height: 2.25rem;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(216,168,77,.6);
+      background: radial-gradient(circle at 35% 25%, #74452f, #191b1f 68%);
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .nav a {
+      color: inherit;
+      text-decoration: none;
+      padding: .45rem .65rem;
+      border-radius: .35rem;
+    }
+
+    .nav a:hover { background: rgba(255,255,255,.07); color: var(--text); }
+
+    .hero {
+      min-height: 24rem;
+      display: grid;
+      align-items: end;
+      padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 2.5rem) 2rem;
+    }
+
+    .hero-inner {
+      max-width: 70rem;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(2.6rem, 7vw, 5.4rem);
+      line-height: .95;
+      letter-spacing: 0;
+      text-shadow: 0 8px 30px rgba(0,0,0,.65);
+    }
+
+    .hero p {
+      max-width: 40rem;
+      margin: 1rem 0 0;
+      color: #ddd6ca;
+      font-size: clamp(1rem, 2vw, 1.18rem);
+      line-height: 1.75;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .75rem;
+      margin-top: 1.5rem;
+      max-width: 48rem;
+    }
+
+    .stat {
+      border: 1px solid rgba(255,255,255,.11);
+      background: rgba(25, 27, 31, .78);
+      padding: .85rem;
+      box-shadow: var(--shadow);
+    }
+
+    .stat b {
+      display: block;
+      color: var(--gold);
+      font-size: 1.3rem;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: .78rem;
+      margin-top: .25rem;
+    }
+
+    main {
+      background: var(--bg);
+      padding: 1.5rem clamp(1rem, 4vw, 2.5rem) 3rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 18rem minmax(0, 1fr) 16rem;
+      gap: 1rem;
+      max-width: 88rem;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .filters, .sidebox, .build-card, .detail-panel, .guide-card, .class-tile, .checklist-card, .faq-item, .ad-card {
+      border: 1px solid var(--line);
+      background: rgba(25, 27, 31, .96);
+      border-radius: .5rem;
+    }
+
+    .filters, .ad-rail {
+      position: sticky;
+      top: 5rem;
+    }
+
+    .filters {
+      padding: 1rem;
+    }
+
+    .ad-rail {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .ad-card {
+      min-height: 15rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(119,165,200,.13), rgba(25,27,31,.96) 45%),
+        #191b1f;
+    }
+
+    .ad-label {
+      color: var(--muted);
+      font-size: .72rem;
+      text-transform: uppercase;
+    }
+
+    .ad-card h3 {
+      margin: .75rem 0 .5rem;
+      font-size: 1rem;
+      line-height: 1.35;
+    }
+
+    .ad-card p {
+      margin: 0;
+      color: #d6d0c6;
+      font-size: .86rem;
+      line-height: 1.55;
+    }
+
+    .ad-art {
+      min-height: 5.5rem;
+      margin: 1rem 0;
+      border-radius: .35rem;
+      border: 1px solid rgba(255,255,255,.09);
+      background:
+        linear-gradient(135deg, rgba(216,168,77,.85), rgba(181,78,67,.65)),
+        url("https://cdn.akamai.steamstatic.com/steam/apps/2694490/header.jpg") center / cover;
+      background-blend-mode: multiply;
+    }
+
+    .ad-button {
+      min-height: 2.3rem;
+      display: grid;
+      place-items: center;
+      border-radius: .35rem;
+      background: #111317;
+      border: 1px solid var(--line);
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: .85rem;
+    }
+
+    .filters h2, .section-title h2, .sidebox h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .field {
+      margin-top: 1rem;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: .78rem;
+      margin-bottom: .38rem;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 2.5rem;
+      border: 1px solid var(--line);
+      border-radius: .35rem;
+      background: #111317;
+      color: var(--text);
+      padding: .55rem .65rem;
+      outline: none;
+    }
+
+    input:focus, select:focus { border-color: var(--gold); }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .4rem;
+    }
+
+    .chip-button {
+      min-height: 2.35rem;
+      border: 1px solid var(--line);
+      border-radius: .35rem;
+      color: var(--muted);
+      background: #111317;
+      cursor: pointer;
+    }
+
+    .chip-button.active {
+      color: #16120a;
+      background: var(--gold);
+      border-color: var(--gold);
+      font-weight: 700;
+    }
+
+    .content {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .2rem 0;
+    }
+
+    .section-title p {
+      margin: .25rem 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .build-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .build-card {
+      min-height: 22rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-art {
+      height: 7rem;
+      background: var(--panel-2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .7;
+      filter: saturate(.95) contrast(1.05);
+    }
+
+    .class-badge {
+      position: absolute;
+      left: .75rem;
+      bottom: .65rem;
+      padding: .28rem .55rem;
+      border-radius: 999px;
+      background: rgba(16, 17, 19, .82);
+      border: 1px solid rgba(255,255,255,.16);
+      color: var(--text);
+      font-size: .75rem;
+    }
+
+    .card-body {
+      padding: .95rem;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .build-card h3 {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.35;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin: .7rem 0;
+    }
+
+    .tag {
+      padding: .25rem .45rem;
+      border-radius: .28rem;
+      background: #111317;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .74rem;
+    }
+
+    .tag.gold { color: var(--gold); }
+    .tag.green { color: var(--green); }
+    .tag.blue { color: var(--blue); }
+
+    .desc {
+      color: #d3cec5;
+      font-size: .9rem;
+      line-height: 1.6;
+      margin: 0 0 .85rem;
+    }
+
+    .score-row {
+      display: grid;
+      gap: .45rem;
+      margin-top: auto;
+    }
+
+    .meter {
+      display: grid;
+      grid-template-columns: 4.5rem 1fr 1.8rem;
+      gap: .5rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: .75rem;
+    }
+
+    .bar {
+      height: .42rem;
+      background: #0d0f12;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--gold));
+    }
+
+    .open-btn {
+      width: 100%;
+      min-height: 2.5rem;
+      margin-top: .9rem;
+      border: 0;
+      border-radius: .35rem;
+      background: #d8a84d;
+      color: #17120a;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .lower {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(18rem, .75fr);
+      gap: 1rem;
+    }
+
+    .guide-section {
+      display: grid;
+      gap: 1rem;
+      margin-top: .25rem;
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .guide-card, .checklist-card, .faq-item {
+      padding: 1rem;
+    }
+
+    .guide-card h3, .checklist-card h3, .faq-item h3 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.35;
+    }
+
+    .guide-card p, .faq-item p {
+      color: #d6d0c6;
+      line-height: 1.65;
+      font-size: .9rem;
+      margin: .65rem 0 0;
+    }
+
+    .guide-card ul, .checklist-card ul {
+      margin: .75rem 0 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: .86rem;
+    }
+
+    .class-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: .75rem;
+    }
+
+    .class-tile {
+      min-height: 7.4rem;
+      padding: .9rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        linear-gradient(145deg, rgba(216,168,77,.13), rgba(25,27,31,.95) 42%),
+        #191b1f;
+    }
+
+    .class-tile b {
+      font-size: .95rem;
+    }
+
+    .class-tile span {
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.45;
+      margin-top: .5rem;
+    }
+
+    .class-tile em {
+      color: var(--gold);
+      font-style: normal;
+      font-size: .75rem;
+      margin-top: .7rem;
+    }
+
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .detail-panel { padding: 1rem; }
+
+    .detail-panel h3 {
+      margin: 0 0 .8rem;
+      font-size: 1rem;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: .7rem;
+    }
+
+    .detail-item {
+      padding-bottom: .7rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .detail-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .detail-item b {
+      display: block;
+      color: var(--gold);
+      font-size: .82rem;
+      margin-bottom: .25rem;
+    }
+
+    .detail-item span {
+      color: #d6d0c6;
+      line-height: 1.6;
+      font-size: .9rem;
+    }
+
+    .sidebox {
+      padding: 1rem;
+    }
+
+    .timeline {
+      display: grid;
+      gap: .75rem;
+      margin-top: .85rem;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 2.3rem 1fr;
+      gap: .7rem;
+      align-items: start;
+    }
+
+    .step i {
+      display: grid;
+      place-items: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: .35rem;
+      background: #111317;
+      color: var(--gold);
+      border: 1px solid var(--line);
+      font-style: normal;
+      font-weight: 800;
+    }
+
+    .step b {
+      display: block;
+      font-size: .9rem;
+      margin-bottom: .2rem;
+    }
+
+    .step span {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: .82rem;
+    }
+
+    .empty {
+      display: none;
+      border: 1px dashed var(--line);
+      border-radius: .5rem;
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    footer {
+      max-width: 88rem;
+      margin: 1.25rem auto 0;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 16rem minmax(0, 1fr); }
+      .ad-rail {
+        grid-column: 1 / -1;
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .build-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lower { grid-template-columns: 1fr; }
+      .guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .class-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 780px) {
+      .topbar { align-items: flex-start; }
+      .nav { display: none; }
+      .hero { min-height: 25rem; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layout { grid-template-columns: 1fr; }
+      .filters, .ad-rail { position: static; }
+      .ad-rail { grid-template-columns: 1fr; }
+      .build-grid { grid-template-columns: 1fr; }
+      .guide-grid, .class-grid, .checklist-grid, .faq-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">II</div>
+      <div>
+        <strong>POE2 BD攻略库</strong>
+        <span>开荒、刷图、Boss与装备路线</span>
+      </div>
+    </div>
+    <nav class="nav" aria-label="主导航">
+      <a href="#builds">BD构筑</a>
+      <a href="#starter">开荒路线</a>
+      <a href="#updates">版本观察</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Path of Exile 2 BD库</h1>
+      <p>为新手和赛季玩家准备的构筑索引。先用少量高质量模板跑起来，再逐步补齐职业、装备词缀、Boss打法和版本更新。</p>
+      <div class="stats" aria-label="攻略库状态">
+        <div class="stat"><b>12</b><span>首批BD模板</span></div>
+        <div class="stat"><b>4</b><span>核心筛选维度</span></div>
+        <div class="stat"><b>6</b><span>职业入口</span></div>
+        <div class="stat"><b>2026.06</b><span>内容更新位</span></div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <div class="layout">
+      <aside class="filters" aria-label="筛选器">
+        <h2>筛选BD</h2>
+        <div class="field">
+          <label for="search">关键词</label>
+          <input id="search" type="search" placeholder="技能、职业、玩法">
+        </div>
+        <div class="field">
+          <label for="classFilter">职业</label>
+          <select id="classFilter">
+            <option value="all">全部职业</option>
+            <option value="女巫">女巫</option>
+            <option value="游侠">游侠</option>
+            <option value="武僧">武僧</option>
+            <option value="战士">战士</option>
+            <option value="佣兵">佣兵</option>
+            <option value="女术士">女术士</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>用途</label>
+          <div class="segmented" id="modeFilter">
+            <button class="chip-button active" data-value="all">全部</button>
+            <button class="chip-button" data-value="开荒">开荒</button>
+            <button class="chip-button" data-value="刷图">刷图</button>
+            <button class="chip-button" data-value="Boss">Boss</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="budgetFilter">造价</label>
+          <select id="budgetFilter">
+            <option value="all">全部造价</option>
+            <option value="低">低造价</option>
+            <option value="中">中造价</option>
+            <option value="高">高造价</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="difficultyFilter">难度</label>
+          <select id="difficultyFilter">
+            <option value="all">全部难度</option>
+            <option value="新手">新手友好</option>
+            <option value="进阶">进阶</option>
+            <option value="高手">高手向</option>
+          </select>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="section-title" id="builds">
+          <div>
+            <h2>推荐BD构筑</h2>
+            <p id="resultCount">正在载入构筑</p>
+          </div>
+        </div>
+        <div class="build-grid" id="buildGrid"></div>
+        <div class="empty" id="emptyState">没有匹配的BD。换个筛选条件试试。</div>
+
+        <div class="lower">
+          <section class="detail-panel" aria-live="polite">
+            <h3 id="detailTitle">点击任意BD查看详情模板</h3>
+            <div class="detail-list" id="detailList">
+              <div class="detail-item"><b>内容结构</b><span>每个BD都会包含适合版本、核心技能、辅助宝石、天赋路线、装备词缀、开荒流程和后期提升方向。</span></div>
+            </div>
+          </section>
+
+          <aside class="sidebox" id="starter">
+            <h3>首批内容发布顺序</h3>
+            <div class="timeline">
+              <div class="step"><i>1</i><div><b>新手开荒BD Top 5</b><span>先覆盖搜索量最大的入口，让玩家快速找到能抄的方案。</span></div></div>
+              <div class="step"><i>2</i><div><b>职业选择与升华</b><span>用职业页承接新手问题，再导向对应BD详情。</span></div></div>
+              <div class="step"><i>3</i><div><b>装备词缀与交易清单</b><span>把“这件装备能不能用”变成可查询的清单。</span></div></div>
+            </div>
+          </aside>
+        </div>
+
+        <aside class="sidebox" id="updates">
+          <h3>版本观察位</h3>
+          <div class="timeline">
+            <div class="step"><i>!</i><div><b>更新日期必须写清楚</b><span>BD类内容最怕过期。每篇攻略顶部保留版本号、更新时间、是否仍推荐。</span></div></div>
+            <div class="step"><i>+</i><div><b>后续可接数据库</b><span>当前页面先用前端数据演示，之后可以迁移到 Next.js + MDX + Supabase。</span></div></div>
+          </div>
+        </aside>
+
+        <section class="guide-section" id="classes">
+          <div class="section-title">
+            <div>
+              <h2>职业入口</h2>
+              <p>每个职业都先给玩家一个明确方向，再导向可抄的BD。</p>
+            </div>
+          </div>
+          <div class="class-grid">
+            <div class="class-tile"><b>游侠</b><span>远程投射物、闪避、速度优先，适合开荒和速刷。</span><em>推荐：闪电箭 / 毒雨</em></div>
+            <div class="class-tile"><b>女巫</b><span>法术、召唤、诅咒路线多，新手可选控场或召唤。</span><em>推荐：冰霜 / 召唤</em></div>
+            <div class="class-tile"><b>战士</b><span>近战重击、护甲、生存强，Boss表现取决于武器。</span><em>推荐：震地 / 图腾</em></div>
+            <div class="class-tile"><b>武僧</b><span>连击、元素、位移节奏强，上限高但更吃操作。</span><em>推荐：冰电连击</em></div>
+            <div class="class-tile"><b>佣兵</b><span>弩、榴弹、弹药切换，有不错的刷图爆发。</span><em>推荐：榴弹 / 穿甲弩</em></div>
+            <div class="class-tile"><b>女术士</b><span>偏混沌、诅咒和持续伤害，适合喜欢机制流的玩家。</span><em>推荐：混沌DOT</em></div>
+          </div>
+        </section>
+
+        <section class="guide-section" id="guides">
+          <div class="section-title">
+            <div>
+              <h2>攻略栏目</h2>
+              <p>这些栏目可以作为后续真实文章的固定内容池。</p>
+            </div>
+          </div>
+          <div class="guide-grid">
+            <article class="guide-card">
+              <h3>新手开荒BD Top 5</h3>
+              <p>把最适合第一角色的构筑集中展示，重点写清楚技能什么时候换、装备优先捡什么、Boss卡关怎么处理。</p>
+              <ul>
+                <li>低造价优先</li>
+                <li>剧情推进稳定</li>
+                <li>不依赖稀有暗金</li>
+              </ul>
+            </article>
+            <article class="guide-card">
+              <h3>装备词缀速查</h3>
+              <p>把武器、项链、戒指、鞋子等部位做成清单，玩家刷到装备时能快速判断是否值得留。</p>
+              <ul>
+                <li>攻击BD看点伤、攻速、暴击</li>
+                <li>法术BD看技能等级、施法速度</li>
+                <li>防御优先生命、抗性、护甲/闪避</li>
+              </ul>
+            </article>
+            <article class="guide-card">
+              <h3>Boss打法合集</h3>
+              <p>每个Boss拆成技能预兆、危险阶段、推荐抗性和BD调整，让玩家能直接解决卡关问题。</p>
+              <ul>
+                <li>技能预警动作</li>
+                <li>站位和输出窗口</li>
+                <li>药剂与抗性建议</li>
+              </ul>
+            </article>
+            <article class="guide-card">
+              <h3>赛季更新解读</h3>
+              <p>记录每次改动对BD的影响，标记“仍推荐”“需要调整”“暂不推荐”，避免过期内容误导玩家。</p>
+              <ul>
+                <li>强势BD变化</li>
+                <li>技能削弱和加强</li>
+                <li>经济与装备价格观察</li>
+              </ul>
+            </article>
+            <article class="guide-card">
+              <h3>搬砖与刷图路线</h3>
+              <p>按玩家阶段整理收益路线，前期看稳定通货，中期看地图效率，后期看Boss和高难内容。</p>
+              <ul>
+                <li>低门槛收益</li>
+                <li>刷图速度需求</li>
+                <li>掉落和交易备注</li>
+              </ul>
+            </article>
+            <article class="guide-card">
+              <h3>BD投稿模板</h3>
+              <p>后续开放投稿时，用统一模板收集版本、技能、装备、天赋和实战视频，保证内容质量一致。</p>
+              <ul>
+                <li>必须写版本号</li>
+                <li>必须写造价和缺点</li>
+                <li>必须给替代装备</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="guide-section">
+          <div class="section-title">
+            <div>
+              <h2>开荒检查表</h2>
+              <p>把玩家最容易忘的事项做成短清单，适合放在每篇BD详情页顶部。</p>
+            </div>
+          </div>
+          <div class="checklist-grid">
+            <article class="checklist-card">
+              <h3>进入Act前</h3>
+              <ul>
+                <li>主技能至少有一组稳定辅助宝石</li>
+                <li>鞋子尽量找移动速度</li>
+                <li>戒指和腰带补缺口抗性</li>
+                <li>遇到Boss前检查药剂是否升级</li>
+              </ul>
+            </article>
+            <article class="checklist-card">
+              <h3>进入地图前</h3>
+              <ul>
+                <li>核心抗性尽量补齐</li>
+                <li>武器或法器需要更新到当前等级段</li>
+                <li>准备单体技能或Boss技能组合</li>
+                <li>明确下一件最大提升装备</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="guide-section">
+          <div class="section-title">
+            <div>
+              <h2>常见问题</h2>
+              <p>这些问题会反复出现，提前做成FAQ能显著提升攻略站可用性。</p>
+            </div>
+          </div>
+          <div class="faq-grid">
+            <article class="faq-item">
+              <h3>第一角色应该选什么BD？</h3>
+              <p>优先选低造价、不卡装备、能同时处理清图和Boss的BD。当前模板里更适合新手的是闪电箭、冰霜法术和召唤路线。</p>
+            </article>
+            <article class="faq-item">
+              <h3>为什么我的伤害突然不够？</h3>
+              <p>通常是武器等级落后、辅助宝石没跟上、抗性太低导致输出窗口短，或者把刷图技能拿去打Boss但没有单体补强。</p>
+            </article>
+            <article class="faq-item">
+              <h3>攻略多久更新一次？</h3>
+              <p>BD页面建议跟随版本补丁更新。首页保留“仍推荐/需调整/暂不推荐”状态，避免玩家抄到过期构筑。</p>
+            </article>
+            <article class="faq-item">
+              <h3>后续要不要做登录和评论？</h3>
+              <p>先不用。第一阶段更重要的是内容质量、筛选体验和搜索流量。等页面数量上来后，再做收藏、评分和投稿。</p>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <aside class="ad-rail" aria-label="广告位">
+        <section class="ad-card">
+          <div>
+            <span class="ad-label">广告位 300 x 250</span>
+            <div class="ad-art" aria-hidden="true"></div>
+            <h3>赛季开荒装备清单</h3>
+            <p>这里可以放交易平台、游戏外设、加速器或攻略会员入口。</p>
+          </div>
+          <a class="ad-button" href="#" aria-label="广告占位链接">广告占位</a>
+        </section>
+        <section class="ad-card">
+          <div>
+            <span class="ad-label">赞助推荐</span>
+            <div class="ad-art" aria-hidden="true"></div>
+            <h3>BD投稿与赞助位</h3>
+            <p>后续可以替换为 Google AdSense 代码，或手动投放图片广告。</p>
+          </div>
+          <a class="ad-button" href="#" aria-label="赞助占位链接">了解位置</a>
+        </section>
+      </aside>
+    </div>
+    <footer>非官方网站。页面中的BD为攻略库信息架构样例，正式发布前应结合当前版本实测、天赋树链接和装备价格重新校对。</footer>
+  </main>
+
+  <script>
+    const builds = [
+      {
+        name: "闪电箭速刷开荒",
+        className: "游侠",
+        mode: "开荒",
+        budget: "低",
+        difficulty: "新手",
+        tags: ["远程", "清图", "低造价"],
+        desc: "依靠高频闪电伤害和移动速度推进剧情，适合第一角色快速过章与早期刷图。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/header.jpg",
+        clear: 92,
+        boss: 66,
+        tank: 48,
+        details: {
+          "核心技能": "闪电箭作为主清图技能，配合增加投射物、感电、攻速类辅助。",
+          "装备优先级": "武器优先元素点伤和攻速，饰品找闪电伤害、生命、抗性。",
+          "开荒节奏": "前期先堆伤害保证清图，中期补生命和抗性，遇到Boss切换单体技能。",
+          "适合玩家": "想要跑图顺滑、操作轻、装备压力低的新手。"
+        }
+      },
+      {
+        name: "冰霜法术控场",
+        className: "女巫",
+        mode: "开荒",
+        budget: "低",
+        difficulty: "新手",
+        tags: ["法术", "控场", "安全"],
+        desc: "通过冰缓和冻结降低战斗压力，剧情Boss容错率高，适合第一次接触POE系列的玩家。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/capsule_616x353.jpg",
+        clear: 76,
+        boss: 72,
+        tank: 62,
+        details: {
+          "核心技能": "冰系法术主攻，搭配范围扩大、施法速度、穿透或增伤辅助。",
+          "装备优先级": "法术伤害、冰霜伤害、施法速度、生命和全抗。",
+          "开荒节奏": "优先拿控制和范围节点，清图时保持距离，Boss战靠冰缓创造输出窗口。",
+          "适合玩家": "喜欢稳、喜欢控场、不想频繁贴脸换血的玩家。"
+        }
+      },
+      {
+        name: "召唤军团稳健推进",
+        className: "女巫",
+        mode: "Boss",
+        budget: "中",
+        difficulty: "进阶",
+        tags: ["召唤", "Boss", "稳健"],
+        desc: "让召唤物承担压力，自己负责走位和补伤害。适合研究Boss机制与长期养成。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_90c2db40c146df7683f7463631ccbdf5f6e847ca.jpg",
+        clear: 70,
+        boss: 88,
+        tank: 74,
+        details: {
+          "核心技能": "主召唤物负责持续输出，配合诅咒、光环或增益技能提升稳定性。",
+          "装备优先级": "召唤物伤害、召唤物生命、技能等级、角色生命与抗性。",
+          "开荒节奏": "前期略慢但安全，中后期依靠装备和技能等级提升Boss效率。",
+          "适合玩家": "愿意研究机制、喜欢低操作压力和稳定成长曲线的玩家。"
+        }
+      },
+      {
+        name: "震地重击近战",
+        className: "战士",
+        mode: "Boss",
+        budget: "中",
+        difficulty: "进阶",
+        tags: ["近战", "重击", "硬碰硬"],
+        desc: "高生命、高护甲、强单体爆发的近战路线，适合熟悉Boss动作后打出压制力。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_0c7a740de53660d0a9cd892853ab7e7bde0a32da.jpg",
+        clear: 62,
+        boss: 90,
+        tank: 84,
+        details: {
+          "核心技能": "重击或震地类技能作为主输出，搭配近战物理、击晕、范围或冷却循环。",
+          "装备优先级": "高物理DPS武器、生命、护甲、抗性，后期补暴击或压制。",
+          "开荒节奏": "前期依赖武器更新，打Boss前确保抗性和药剂配置合格。",
+          "适合玩家": "喜欢近战反馈、能接受练习Boss走位的玩家。"
+        }
+      },
+      {
+        name: "冰电武僧连击",
+        className: "武僧",
+        mode: "刷图",
+        budget: "高",
+        difficulty: "高手",
+        tags: ["连击", "机动", "后期"],
+        desc: "依靠高速位移、连击和元素爆发打出爽快节奏，强度高但需要手法和装备支撑。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_62d7702b2dd8c72ca987d7de56833d839b27fd7f.jpg",
+        clear: 94,
+        boss: 82,
+        tank: 58,
+        details: {
+          "核心技能": "冰电元素连击技能为主，配合暴击、攻速、元素穿透和位移循环。",
+          "装备优先级": "武器点伤、攻速、暴击、元素伤害，防御端补生命与闪避。",
+          "开荒节奏": "不建议完全新手首发，装备成型后刷图体验明显提升。",
+          "适合玩家": "追求操作上限、速度和后期成长的玩家。"
+        }
+      },
+      {
+        name: "榴弹佣兵清场",
+        className: "佣兵",
+        mode: "刷图",
+        budget: "中",
+        difficulty: "进阶",
+        tags: ["爆炸", "范围", "刷图"],
+        desc: "用范围爆炸和弹药循环处理成群敌人，适合做中期刷图和赛季搬砖入口。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_53d708d7e642ba4308460ab1f67d2f1882c9e2a0.jpg",
+        clear: 88,
+        boss: 64,
+        tank: 60,
+        details: {
+          "核心技能": "榴弹或爆炸类技能主清场，单体Boss需要准备替换技能或第二套输出。",
+          "装备优先级": "投射物伤害、范围伤害、攻击速度、生命、抗性。",
+          "开荒节奏": "剧情推进顺滑，中期刷图效率好，Boss战要提前熟悉技能空窗。",
+          "适合玩家": "喜欢爆炸反馈和中距离作战的玩家。"
+        }
+      },
+      {
+        name: "毒雨持续伤害",
+        className: "游侠",
+        mode: "开荒",
+        budget: "低",
+        difficulty: "新手",
+        tags: ["持续伤害", "远程", "稳定"],
+        desc: "用毒系持续伤害覆盖战场，输出不需要长时间站桩，适合边走边打的开荒节奏。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_d3f45c5570af11e37e7719850e8cfa5e8a98f4e5.jpg",
+        clear: 80,
+        boss: 76,
+        tank: 56,
+        details: {
+          "核心技能": "毒雨或混沌投射物为主，搭配持续伤害、范围、投射物数量辅助。",
+          "装备优先级": "混沌伤害、持续伤害倍率、攻速、生命和抗性。",
+          "开荒节奏": "前期清图稳，中期补足单体持续伤害，Boss战保持移动铺场。",
+          "适合玩家": "喜欢远程、安全、低装备依赖路线的新手。"
+        }
+      },
+      {
+        name: "火焰法术点燃",
+        className: "女术士",
+        mode: "刷图",
+        budget: "中",
+        difficulty: "进阶",
+        tags: ["点燃", "法术", "范围"],
+        desc: "依靠点燃扩散和范围法术处理密集怪群，刷图爽快，后期可转高伤害持续流派。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_f55bfb4f73f9fbfbf9c939fce47f19f528d28a0f.jpg",
+        clear: 86,
+        boss: 70,
+        tank: 54,
+        details: {
+          "核心技能": "火焰法术触发点燃，搭配燃烧伤害、持续伤害和范围辅助。",
+          "装备优先级": "火焰伤害、持续伤害倍率、技能等级、施法速度。",
+          "开荒节奏": "清图体验好，Boss阶段需要保证点燃覆盖和走位节奏。",
+          "适合玩家": "喜欢法术范围爆发和持续伤害机制的玩家。"
+        }
+      },
+      {
+        name: "图腾战士防守反击",
+        className: "战士",
+        mode: "开荒",
+        budget: "低",
+        difficulty: "新手",
+        tags: ["图腾", "防御", "低操作"],
+        desc: "用图腾辅助输出，角色专注走位和防御，适合不想一直贴脸硬打的新手战士路线。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_0c7a740de53660d0a9cd892853ab7e7bde0a32da.jpg",
+        clear: 68,
+        boss: 80,
+        tank: 86,
+        details: {
+          "核心技能": "图腾承担持续输出，角色用战吼、防御技能和重击补伤害。",
+          "装备优先级": "生命、护甲、抗性、武器物理伤害，后期补图腾相关词缀。",
+          "开荒节奏": "剧情容错高，清图速度一般，但Boss稳定性很好。",
+          "适合玩家": "喜欢稳扎稳打、先活下来再提升输出的玩家。"
+        }
+      },
+      {
+        name: "穿甲弩单体佣兵",
+        className: "佣兵",
+        mode: "Boss",
+        budget: "中",
+        difficulty: "进阶",
+        tags: ["弩", "单体", "破甲"],
+        desc: "围绕穿甲和高伤害射击构建，清图需要副技能补足，但Boss输出窗口很明确。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_53d708d7e642ba4308460ab1f67d2f1882c9e2a0.jpg",
+        clear: 64,
+        boss: 87,
+        tank: 58,
+        details: {
+          "核心技能": "穿甲弩技能主打单体，副手准备范围清怪或爆炸技能。",
+          "装备优先级": "物理点伤、攻击速度、暴击、命中，防御补生命和抗性。",
+          "开荒节奏": "前期用范围技能过图，中期逐渐强化Boss单体。",
+          "适合玩家": "目标是打Boss、愿意管理技能切换和弹药节奏的玩家。"
+        }
+      },
+      {
+        name: "混沌DOT女术士",
+        className: "女术士",
+        mode: "Boss",
+        budget: "高",
+        difficulty: "高手",
+        tags: ["混沌", "持续伤害", "诅咒"],
+        desc: "通过诅咒和混沌持续伤害叠加输出，成长空间高，但需要理解机制和装备词缀。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/capsule_616x353.jpg",
+        clear: 74,
+        boss: 92,
+        tank: 52,
+        details: {
+          "核心技能": "混沌持续伤害技能叠加诅咒，搭配持续伤害倍率和技能等级。",
+          "装备优先级": "混沌伤害、持续伤害倍率、诅咒效果、技能等级、生命抗性。",
+          "开荒节奏": "不建议完全照抄首发，适合有一定资源后转型。",
+          "适合玩家": "喜欢研究机制、追求高Boss上限的进阶玩家。"
+        }
+      },
+      {
+        name: "寒冰打击武僧",
+        className: "武僧",
+        mode: "开荒",
+        budget: "中",
+        difficulty: "进阶",
+        tags: ["近战", "冰冻", "机动"],
+        desc: "用冰冻控制和位移规避伤害，兼顾打击感与安全性，是武僧较容易入门的路线。",
+        image: "https://cdn.akamai.steamstatic.com/steam/apps/2694490/ss_62d7702b2dd8c72ca987d7de56833d839b27fd7f.jpg",
+        clear: 78,
+        boss: 78,
+        tank: 64,
+        details: {
+          "核心技能": "冰属性打击技能为主，搭配攻速、冰霜伤害、冻结和位移循环。",
+          "装备优先级": "武器元素点伤、攻速、冰霜伤害、生命、闪避和抗性。",
+          "开荒节奏": "前期需要适应近战节奏，中期控制能力成型后体验提升。",
+          "适合玩家": "想玩武僧但又希望比纯高速连击更稳的玩家。"
+        }
+      }
+    ];
+
+    const state = {
+      mode: "all"
+    };
+
+    const els = {
+      search: document.querySelector("#search"),
+      classFilter: document.querySelector("#classFilter"),
+      budgetFilter: document.querySelector("#budgetFilter"),
+      difficultyFilter: document.querySelector("#difficultyFilter"),
+      modeFilter: document.querySelector("#modeFilter"),
+      grid: document.querySelector("#buildGrid"),
+      empty: document.querySelector("#emptyState"),
+      count: document.querySelector("#resultCount"),
+      detailTitle: document.querySelector("#detailTitle"),
+      detailList: document.querySelector("#detailList")
+    };
+
+    function matches(build) {
+      const keyword = els.search.value.trim().toLowerCase();
+      const searchable = [build.name, build.className, build.mode, build.budget, build.difficulty, ...build.tags].join(" ").toLowerCase();
+      return (!keyword || searchable.includes(keyword)) &&
+        (els.classFilter.value === "all" || build.className === els.classFilter.value) &&
+        (state.mode === "all" || build.mode === state.mode) &&
+        (els.budgetFilter.value === "all" || build.budget === els.budgetFilter.value) &&
+        (els.difficultyFilter.value === "all" || build.difficulty === els.difficultyFilter.value);
+    }
+
+    function meter(label, value) {
+      return `<div class="meter"><span>${label}</span><div class="bar"><span style="width:${value}%"></span></div><span>${value}</span></div>`;
+    }
+
+    function renderDetails(build) {
+      els.detailTitle.textContent = build.name;
+      els.detailList.innerHTML = Object.entries(build.details)
+        .map(([title, text]) => `<div class="detail-item"><b>${title}</b><span>${text}</span></div>`)
+        .join("");
+    }
+
+    function render() {
+      const filtered = builds.filter(matches);
+      els.count.textContent = `当前显示 ${filtered.length} / ${builds.length} 个BD`;
+      els.empty.style.display = filtered.length ? "none" : "block";
+      els.grid.innerHTML = filtered.map((build, index) => `
+        <article class="build-card">
+          <div class="card-art">
+            <img src="${build.image}" alt="${build.name}">
+            <span class="class-badge">${build.className}</span>
+          </div>
+          <div class="card-body">
+            <h3>${build.name}</h3>
+            <div class="meta">
+              <span class="tag gold">${build.mode}</span>
+              <span class="tag green">${build.budget}造价</span>
+              <span class="tag blue">${build.difficulty}</span>
+              ${build.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}
+            </div>
+            <p class="desc">${build.desc}</p>
+            <div class="score-row">
+              ${meter("清图", build.clear)}
+              ${meter("Boss", build.boss)}
+              ${meter("生存", build.tank)}
+            </div>
+            <button class="open-btn" data-index="${index}" type="button">查看BD模板</button>
+          </div>
+        </article>
+      `).join("");
+
+      document.querySelectorAll(".open-btn").forEach(button => {
+        button.addEventListener("click", () => renderDetails(filtered[Number(button.dataset.index)]));
+      });
+
+      if (filtered[0]) renderDetails(filtered[0]);
+    }
+
+    els.modeFilter.addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      state.mode = button.dataset.value;
+      els.modeFilter.querySelectorAll("button").forEach(item => item.classList.toggle("active", item === button));
+      render();
+    });
+
+    [els.search, els.classFilter, els.budgetFilter, els.difficultyFilter].forEach(input => {
+      input.addEventListener("input", render);
+    });
+
+    render();
+  </script>
+</body>
+</html>
+
